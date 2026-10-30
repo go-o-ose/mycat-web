@@ -1,0 +1,221 @@
+* {
+    box-sizing: border-box;
+    user-select: none;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 10px;
+    background-color: #d9ebfc; /* Нежно-синий */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    transition: background-color 0.5s;
+    overflow: hidden;
+}
+
+.top-bar {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 5px;
+}
+
+/* Анимация кота */
+.cat-container {
+    height: 35vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#cat-img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    animation: floatCat 4s ease-in-out infinite;
+}
+
+@keyframes floatCat {
+    0% { transform: translateX(-15px); }
+    50% { transform: translateX(15px); }
+    100% { transform: translateX(-15px); }
+}
+
+/* Панель рыбок */
+.fish-panel {
+    display: flex;
+    justify-content: space-around;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.fish-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.fish-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.fish-item span {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Кнопки */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-blue { background: #4da6ff; flex: 1; }
+.btn-purple { background: #8059e0; flex: 1; }
+.btn-red { background: #e05c5c; width: 100%; margin-top: 10px;}
+.btn-green { background: #33cc66; width: 80px;}
+.btn-gray { background: #cccccc; color: #333;}
+
+/* Задания */
+.task-container {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.task-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+/* Красивый чекбокс */
+.custom-checkbox {
+    width: 30px;
+    height: 30px;
+    background-color: #bfbfbf;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.custom-checkbox.checked {
+    background-color: #33ccff;
+}
+
+.custom-checkbox.checked::after {
+    content: "✓";
+    color: white;
+    font-size: 20px;
+}
+
+/* Аквариум */
+.aquarium-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+#aq-img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+#aq-text {
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    flex: 1;
+}
+
+/* Модальные окна */
+#modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#modal-overlay.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: #262633;
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    width: 85%;
+    max-height: 80vh;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 20px;
+}
+
+#modal-text {
+    margin-bottom: 20px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+#modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-btn {
+    background: #4da6ff;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.shop-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #444;
+}

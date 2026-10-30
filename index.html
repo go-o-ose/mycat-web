@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Мой Кот</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Верхняя панель -->
+    <div class="top-bar">
+        <div id="info">Стрик: 0 | Про: 0</div>
+    </div>
+
+    <!-- Кот -->
+    <div class="cat-container">
+        <img src="cat.jpg" id="cat-img" alt="Кот">
+    </div>
+
+    <!-- Рыбки -->
+    <div class="fish-panel">
+        <div class="fish-item"><img src="fish_common.png"><span id="fish-common">0</span></div>
+        <div class="fish-item"><img src="fish_rare.png"><span id="fish-rare">0</span></div>
+        <div class="fish-item"><img src="fish_epic.png"><span id="fish-epic">0</span></div>
+        <div class="fish-item"><img src="fish_legend.png"><span id="fish-legend">0</span></div>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="action-buttons">
+        <button onclick="openExchange()" class="btn-blue">Обмен</button>
+        <button onclick="openShop()" class="btn-purple">Магазин</button>
+    </div>
+
+    <!-- Задания -->
+    <div class="task-container">
+        <div id="task-list"></div>
+        
+        <div class="bottom-actions">
+            <button onclick="triggerSickDay()" class="btn-red">Болезнь</button>
+        </div>
+        
+        <!-- Аквариум -->
+        <div class="aquarium-panel">
+            <img src="aquarium.png" id="aq-img">
+            <div id="aq-text">Аквариум: не куплен</div>
+            <button onclick="collectAquarium()" class="btn-green">Забрать</button>
+        </div>
+    </div>
+
+    <!-- Модальные окна (Скрыты по умолчанию) -->
+    <div id="modal-overlay" class="hidden">
+        <div class="modal-content">
+            <h2 id="modal-title"></h2>
+            <div id="modal-text"></div>
+            <div id="modal-buttons"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
