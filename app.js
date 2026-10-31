@@ -1881,18 +1881,32 @@ function buyBg(id) {
 }
 
 function buyMult() {
-    let base = 10 * Math.pow(3, state.multiplierLevel);
-    let idx = 0, price = base;
-    const types = ["c", "r", "e", "l"];
-    while(price > 50 && idx < 3) { price = Math.floor(price/50)*2; idx++; }
-    
-    if (state.fish[types[idx]] >= price) {
-        state.fish[types[idx]] -= price;
-        state.multiplierLevel++;
-        save(); updateUI(); openShop(); // Обновить окно
-    } else showPopup("!", "Не хватает!", ()=>{});
-}
+    // Если уже максимум
+    if (state.multiplierLevel >= 10) return;
 
+    // Считаем цену для текущего уровня
+    let basePrice = 10 * Math.pow(3, state.multiplierLevel);
+    let curIdx = 0; 
+    let price = basePrice; 
+    const curTypes = ["c", "r", "e", "l"];
+
+    // Перевод в старшую валюту (если > 50)
+    while (price > 50 && curIdx < 3) { 
+        price = Math.floor(price / 50) * 2; 
+        curIdx++; 
+    }
+
+    // Проверяем, хватает ли нужной валюты
+    if (state.fish[curTypes[curIdx]] >= price) {
+        state.fish[curTypes[curIdx]] -= price;
+        state.multiplierLevel++;
+        save();
+        updateUI();
+        openShop(); // Перерисовываем магазин с новой ценой
+    } else {
+        showPopup("Ошибка", `Не хватает! Нужно ${price} валюты "${curTypes[curIdx]}", а у тебя ${state.fish[curTypes[curIdx]]}`, ()=>{});
+    }
+}
 function buyAq() {
     const p = aqPrices[state.aquariumLevel];
     if (state.fish[p.t] >= p.p) {
