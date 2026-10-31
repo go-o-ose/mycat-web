@@ -1816,19 +1816,34 @@ function updateAquariumUI() {
 
 function collectAquarium() {
     if (state.aquariumLevel === 0) return showPopup("!", "Сначала купи в магазине", ()=>{});
-    
+
     const last = state.lastAquariumTime ? new Date(state.lastAquariumTime) : new Date();
     const now = new Date();
     const hours = (now - last) / 1000 / 3600;
     
-    const rate = aqRates[state.aquariumLevel - 1];
-    const earned = Math.floor(hours * rate.r);
+    // Жестко задаем, что дает каждый уровень (без ссылок на старые массивы)
+    const rates = [
+        {t:"common", r:1}, {t:"common", r:3}, 
+        {t:"rare", r:1}, {t:"rare", r:3}, 
+        {t:"epic", r:1}, {t:"epic", r:3}, 
+        {t:"legend", r:1}, {t:"legend", r:3}
+    ];
+    
+    // Берем нужный уровень (вычитаем 1, т.к. массив с 0, а уровни с 1)
+    const currentRate = rates[state.aquariumLevel - 1];
+    
+    // Считаем заработок
+    const earned = Math.floor(hours * currentRate.r);
 
     if (earned > 0) {
-        state.fish[rate.t] += earned;
+        // Начисляем валюту по правильному названию (common, rare и т.д.)
+        state.fish[currentRate.t] += earned;
         state.lastAquariumTime = now.toISOString();
         save(); updateUI();
-        showPopup("Аквариум", `+${earned} ${rate.t === 'c'?'обычных':rate.t==='r'?'редких':rate.t==='e'?'эпик':'легенд'}`, ()=>{});
+        
+        // Красивые названия для всплывашки
+        const ruNames = {common:'обычных', rare:'редких', epic:'эпик', legend:'легенд'};
+        showPopup("Аквариум", `+${earned} ${ruNames[currentRate.t]}`, ()=>{});
     } else {
         showPopup("Аквариум", "Пока пусто (подожди час)", ()=>{});
     }
