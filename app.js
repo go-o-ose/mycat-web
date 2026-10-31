@@ -1837,148 +1837,128 @@ function collectAquarium() {
 // --- МАГАЗИН И ОБМЕН ---
 function openShop() {
     let html = "<h3>Фоны</h3>";
-    const bgs = ["Синий (50 c)", "Закат (200 c)", "Ночь (500 c)", "Лес (2 r)", "Космос (5 r)", "Вода (15 r)", "Аврора (3 e)", "Огонь (10 e)", "Галактика (1 l)", "Легенда (3 l)"];
-    const bgPrices = [{t:"c",p:50},{t:"c",p:200},{t:"c",p:500},{t:"r",p:2},{t:"r",p:5},{t:"r",p:15},{t:"e",p:3},{t:"e",p:10},{t:"l",p:1},{t:"l",p:3}];
+    const bgs = ["Синий (50 об.)", "Закат (200 об.)", "Ночь (500 об.)", "Лес (2 ред.)", "Космос (5 ред.)", "Вода (15 ред.)", "Аврора (3 эпик.)", "Огонь (10 эпик.)", "Галактика (1 лег.)", "Легенда (3 лег.)"];
+    const bgPrices = [{t:"common",p:50},{t:"common",p:200},{t:"common",p:500},{t:"rare",p:2},{t:"rare",p:5},{t:"rare",p:15},{t:"epic",p:3},{t:"epic",p:10},{t:"legend",p:1},{t:"legend",p:3}];
     
-    bgs.forEach((name, i) => {
-        html += `<div class="shop-row"><span>${name}</span><button onclick="buyBg(${i})">Купить</button></div>`;
+    bgs.forEach((name, i) => { 
+        let canAfford = state.fish[bgPrices[i].t] >= bgPrices[i].p;
+        let btnStyle = canAfford ? "" : "style='opacity: 0.5;'";
+        html += `<div class="shop-row"><span>${name}</span><button ${btnStyle} onclick="buyBg(${i})">Купить</button></div>`; 
     });
-
-    // Множитель
+    
     html += "<h3>Множитель</h3>";
-    if (state.multiplierLevel >= 10) {
-        html += `<div class="shop-row"><span>МАКС (×1024)</span></div>`;
+    if (state.multiplierLevel >= 10) { 
+        html += `<div class="shop-row"><span>МАКС (×1024)</span></div>`; 
     } else {
         let basePrice = 10 * Math.pow(3, state.multiplierLevel);
-        let curIdx = 0, price = basePrice;
-        const curTypes = ["c", "r", "e", "l"];
-        while(price > 50 && curIdx < 3) {
-            price = Math.floor(price / 50) * 2;
-            curIdx++;
+        let curIdx = 0, price = basePrice; 
+        const curTypes = ["common", "rare", "epic", "legend"];
+        
+        while(price > 50 && curIdx < 3) { 
+            price = Math.floor(price / 50) * 2; 
+            curIdx++; 
         }
-        html += `<div class="shop-row"><span>×${Math.pow(2, state.multiplierLevel+1)} (${price} ${curTypes[curIdx]})</span><button onclick="buyMult()">Купить</button></div>`;
+        
+        let canAfford = state.fish[curTypes[curIdx]] >= price;
+        let btnStyle = canAfford ? "" : "style='opacity: 0.5;'";
+        let typeNames = {common:"об.", rare:"ред.", epic:"эпик.", legend:"лег."};
+        
+        html += `<div class="shop-row"><span>×${Math.pow(2, state.multiplierLevel+1)} (${price} ${typeNames[curTypes[curIdx]]})</span><button ${btnStyle} onclick="buyMult()">Купить</button></div>`;
     }
-
-    // Аквариум
+    
     html += "<h3>Аквариум</h3>";
-    if (state.aquariumLevel >= aqPrices.length) {
-        html += `<div class="shop-row"><span>МАКС</span></div>`;
-    } else {
-        const p = aqPrices[state.aquariumLevel];
-        html += `<div class="shop-row"><span>Ур.${state.aquariumLevel+1} (${p.p} ${p.t})</span><button onclick="buyAq()">Купить</button></div>`;
+    if (state.aquariumLevel >= aqPrices.length) { 
+        html += `<div class="shop-row"><span>МАКС</span></div>`; 
+    } else { 
+        const p = aqPrices[state.aquariumLevel]; 
+        let canAfford = state.fish[p.t] >= p.p;
+        let btnStyle = canAfford ? "" : "style='opacity: 0.5;'";
+        let typeNames = {common:"об.", rare:"ред.", epic:"эпик.", legend:"лег."};
+        html += `<div class="shop-row"><span>Ур.${state.aquariumLevel+1} (${p.p} ${typeNames[p.t]})</span><button ${btnStyle} onclick="buyAq()">Купить</button></div>`; 
     }
-
+    
     showModal("Магазин", html, [{text: "Закрыть", action: closeModal}]);
 }
 
 function buyBg(id) {
-    const p = [{t:"c",p:50},{t:"c",p:200},{t:"c",p:500},{t:"r",p:2},{t:"r",p:5},{t:"r",p:15},{t:"e",p:3},{t:"e",p:10},{t:"l",p:1},{t:"l",p:3}][id];
-    if(state.fish[p.t] >= p.p) {
-        state.fish[p.t] -= p.p;
-        state.background = id;
-        save(); updateUI(); closeModal();
-    } else showPopup("!", "Не хватает!", ()=>{});
+    const p = [{t:"common",p:50},{t:"common",p:200},{t:"common",p:500},{t:"rare",p:2},{t:"rare",p:5},{t:"rare",p:15},{t:"epic",p:3},{t:"epic",p:10},{t:"legend",p:1},{t:"legend",p:3}][id];
+    if(state.fish[p.t] >= p.p) { 
+        state.fish[p.t] -= p.p; 
+        state.background = id; 
+        save(); updateUI(); closeModal(); 
+    } else {
+        showPopup("!", "Не хватает!", ()=>{});
+    }
 }
 
 function buyMult() {
-    // Если уже максимум
     if (state.multiplierLevel >= 10) return;
 
-    // Считаем цену для текущего уровня
     let basePrice = 10 * Math.pow(3, state.multiplierLevel);
-    let curIdx = 0; 
-    let price = basePrice; 
-    const curTypes = ["c", "r", "e", "l"];
+    let curIdx = 0, price = basePrice; 
+    const curTypes = ["common", "rare", "epic", "legend"];
 
-    // Перевод в старшую валюту (если > 50)
-    while (price > 50 && curIdx < 3) { 
+    while(price > 50 && curIdx < 3) { 
         price = Math.floor(price / 50) * 2; 
         curIdx++; 
     }
 
-    // Проверяем, хватает ли нужной валюты
-    if (state.fish[curTypes[curIdx]] >= price) {
-        state.fish[curTypes[curIdx]] -= price;
-        state.multiplierLevel++;
-        save();
-        updateUI();
-        openShop(); // Перерисовываем магазин с новой ценой
+    if (state.fish[curTypes[curIdx]] >= price) { 
+        state.fish[curTypes[curIdx]] -= price; 
+        state.multiplierLevel++; 
+        save(); updateUI(); openShop(); 
     } else {
-        showPopup("Ошибка", `Не хватает! Нужно ${price} валюты "${curTypes[curIdx]}", а у тебя ${state.fish[curTypes[curIdx]]}`, ()=>{});
+        showPopup("!", `Не хватает! Нужно ${price} (${curTypes[curIdx]})`, ()=>{});
     }
 }
+
 function buyAq() {
     const p = aqPrices[state.aquariumLevel];
     if (state.fish[p.t] >= p.p) {
-        state.fish[p.t] -= p.p;
-        state.aquariumLevel++;
+        state.fish[p.t] -= p.p; state.aquariumLevel++;
         if (state.aquariumLevel === 1) state.lastAquariumTime = new Date().toISOString();
         save(); updateUI(); openShop();
-    } else showPopup("!", "Не хватает!", ()=>{});
+    } else { 
+        showPopup("!", `Не хватает! Нужно ${p.p} (${p.t})`, ()=>{}); 
+    }
 }
 
 function openExchange() {
     let html = `
-    <div class="shop-row"><span>50 c → 1 r</span><button onclick="exch('c','r',50)">Обменять</button></div>
-    <div class="shop-row"><span>1 r → 50 c</span><button onclick="exch('r','c',1,50)">Обменять</button></div>
-    <div class="shop-row"><span>50 r → 1 e</span><button onclick="exch('r','e',50)">Обменять</button></div>
-    <div class="shop-row"><span>1 e → 50 r</span><button onclick="exch('e','r',1,50)">Обменять</button></div>
-    <div class="shop-row"><span>50 e → 1 l</span><button onclick="exch('e','l',50)">Обменять</button></div>
-    <div class="shop-row"><span>1 l → 50 e</span><button onclick="exch('l','e',1,50)">Обменять</button></div>
-    `;
+    <div class="shop-row"><span>50 Об. → 1 Ред.</span><button onclick="exch('common','rare',50)">Обменять</button></div>
+    <div class="shop-row"><span>1 Ред. → 50 Об.</span><button onclick="exch('rare','common',1,50)">Обменять</button></div>
+    <div class="shop-row"><span>50 Ред. → 1 Эпик.</span><button onclick="exch('rare','epic',50)">Обменять</button></div>
+    <div class="shop-row"><span>1 Эпик. → 50 Ред.</span><button onclick="exch('epic','rare',1,50)">Обменять</button></div>
+    <div class="shop-row"><span>50 Эпик. → 1 Лег.</span><button onclick="exch('epic','legend',50)">Обменять</button></div>
+    <div class="shop-row"><span>1 Лег. → 50 Эпик.</span><button onclick="exch('legend','epic',1,50)">Обменять</button></div>`;
     showModal("Обмен", html, [{text: "Закрыть", action: closeModal}]);
 }
 
 function exch(from, to, cost, reward = 1) {
-    if (state.fish[from] >= cost) {
-        state.fish[from] -= cost;
-        state.fish[to] += reward;
-        save(); updateUI();
-        // Перерисовываем окно, чтобы цифры обновились
-        openExchange(); 
-    } else showPopup("!", "Не хватает!", ()=>{});
+    if (state.fish[from] >= cost) { 
+        state.fish[from] -= cost; 
+        state.fish[to] += reward; 
+        save(); updateUI(); openExchange(); 
+    } else { 
+        showPopup("!", `Не хватает! Нужно ${cost} (${from})`, ()=>{}); 
+    }
 }
 
-// --- МОДАЛЬНЫЕ ОКНА ---
 function showModal(title, html, buttons) {
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-text').innerHTML = html;
-    const btnContainer = document.getElementById('modal-buttons');
-    btnContainer.innerHTML = "";
-    
+    const btnContainer = document.getElementById('modal-buttons'); btnContainer.innerHTML = "";
     buttons.forEach(b => {
-        const btn = document.createElement('button');
-        btn.className = "modal-btn";
-        btn.innerText = b.text;
-        btn.onclick = b.action;
-        btnContainer.appendChild(btn);
+        const btn = document.createElement('button'); btn.className = "modal-btn"; btn.innerText = b.text; btn.onclick = b.action; btnContainer.appendChild(btn);
     });
-    
     document.getElementById('modal-overlay').classList.remove('hidden');
 }
 
-function closeModal() {
-    document.getElementById('modal-overlay').classList.add('hidden');
-}
+function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+function showPopup(title, text, onClose) { showModal(title, `<p>${text}</p>`, [{text: "ОК", action: () => { onClose(); closeModal(); }}]); }
+function showConfirm(title, text, onYes) { showModal(title, `<p>${text}</p>`, [{text: "Да", action: () => { onYes(); closeModal(); }}, {text: "Нет", action: closeModal}]); }
 
-function showPopup(title, text, onClose) {
-    showModal(title, `<p>${text}</p>`, [{text: "Забрать", action: () => { onClose(); closeModal(); }}]);
-}
-
-function showConfirm(title, text, onYes) {
-    showModal(title, `<p>${text}</p>`, [
-        {text: "Да", action: () => { onYes(); closeModal(); }},
-        {text: "Нет", action: closeModal}
-    ]);
-}
-
-// --- ЗАПУСК ---
 window.onload = () => {
     checkStreakOnLoad();
-    setInterval(() => {
-        // Если приложение открыто, раз в минуту проверяем наступил ли новый день
-        if (state.lastDay !== todayStr() && state.sickDay !== todayStr()) {
-            checkStreakOnLoad();
-        }
-    }, 60000);
+    setInterval(() => { if (state.lastDay !== todayStr() && state.sickDay !== todayStr()) checkStreakOnLoad(); }, 60000);
 };
