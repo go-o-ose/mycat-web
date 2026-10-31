@@ -1800,16 +1800,16 @@ function triggerSickDay() {
 }
 
 // --- АКВАРИУМ ---
-const aqPrices = [ {t:"c",p:100}, {t:"c",p:300}, {t:"r",p:18}, {t:"e",p:1}, {t:"e",p:3}, {t:"e",p:9}, {t:"e",p:27}, {t:"l",p:1} ];
-const aqRates = [ {t:"c",r:1}, {t:"c",r:3}, {t:"r",r:1}, {t:"r",r:3}, {t:"e",r:1}, {t:"e",r:3}, {t:"l",r:1}, {t:"l",r:3} ];
+const aqPrices = [ {t:"common",p:100}, {t:"common",p:300}, {t:"rare",p:18}, {t:"epic",p:1}, {t:"epic",p:3}, {t:"epic",p:9}, {t:"epic",p:27}, {t:"legend",p:1} ];
+const aqRates = [ {t:"common",r:1}, {t:"common",r:3}, {t:"rare",r:1}, {t:"rare",r:3}, {t:"epic",r:1}, {t:"epic",r:3}, {t:"legend",r:1}, {t:"legend",r:3} ];
 
 function updateAquariumUI() {
     const text = document.getElementById('aq-text');
-    if (state.aquariumLevel === 0) {
-        text.innerText = "Аквариум: не куплен";
+    if (state.aquariumLevel === 0) { 
+        text.innerText = "Аквариум: не куплен"; 
     } else {
-        const rate = aqRates[state.aquariumLevel - 1];
-        const names = {c:"обыч", r:"ред", e:"эпик", l:"лег"};
+        const rate = [ {t:"common",r:1}, {t:"common",r:3}, {t:"rare",r:1}, {t:"rare",r:3}, {t:"epic",r:1}, {t:"epic",r:3}, {t:"legend",r:1}, {t:"legend",r:3} ][state.aquariumLevel - 1];
+        const names = {common:"обыч", rare:"ред", epic:"эпик", legend:"лег"};
         text.innerText = `Ур.${state.aquariumLevel}\n+${rate.r} ${names[rate.t]}/час`;
     }
 }
