@@ -1760,26 +1760,47 @@ function checkAllDone() {
 
 function checkStreakRewards() {
     const today = todayStr();
+    // Если уже получали награду сегодня или болеем — выходим
     if (state.lastRewardDay === today || state.sickDay === today) return;
 
-    let s = state.streakSimple;
-    let p = state.streakPro;
+    let s = state.streakSimple; 
+    let p = state.streakPro; 
     let lines = [];
+    
+    // Берем текущий множитель
+    const mult = getMultiplier(); 
 
-    if (p >= 10) lines.push(`+${Math.floor(p/10)} редких (про)`);
-    if (p >= 100) lines.push(`+${Math.floor(p/100)} эпик (про)`);
-    if (p >= 500) lines.push(`+${Math.floor(p/500)} легенд (про)`);
-    if (s >= 20) lines.push(`+${Math.floor(s/20)} редких (обыч)`);
-    if (s >= 200) lines.push(`+${Math.floor(s/200)} эпик (обыч)`);
-    if (s >= 1000) lines.push(`+${Math.floor(s/1000)} легенд (обыч)`);
+    // 1. Считаем обычные (делим на 2 нацело, чтобы не жирно было)
+    let commonReward = Math.floor((s + p) / 2) * mult;
 
+    // 2. Считаем редкие (делим на 10 и 20 нацело, как ты просил //)
+    let rareReward = (Math.floor(p / 10) + Math.floor(s / 20)) * mult;
+    
+    // 3. Считаем эпические
+    let epicReward = (Math.floor(p / 100) + Math.floor(s / 200)) * mult;
+    
+    // 4. Считаем легендарные
+    let legendReward = (Math.floor(p / 500) + Math.floor(s / 1000)) * mult;
+
+    // Формируем красивый список для попапа
+    if (commonReward > 0) lines.push(`+${commonReward} обычных`);
+    if (rareReward > 0) lines.push(`+${rareReward} редких`);
+    if (epicReward > 0) lines.push(`+${epicReward} эпических`);
+    if (legendReward > 0) lines.push(`+${legendReward} легендарных`);
+
+    // Если хоть что-то начислили — показываем попап
     if (lines.length > 0) {
-        state.lastRewardDay = today;
+        state.lastRewardDay = today; // Запоминаем, что награду за сегодня уже дали
+        
         showPopup("НАГРАДА ЗА СТРИК", lines.join('<br>'), () => {
-            state.fish.rare += Math.floor(p/10) + Math.floor(s/20);
-            state.fish.epic += Math.floor(p/100) + Math.floor(s/200);
-            state.fish.legend += Math.floor(p/500) + Math.floor(s/1000);
-            save(); updateUI();
+            // Когда нажал "Забрать" — добавляем рыбки
+            state.fish.common += commonReward;
+            state.fish.rare += rareReward;
+            state.fish.epic += epicReward;
+            state.fish.legend += legendReward;
+            
+            save(); 
+            updateUI();
         });
     }
 }
