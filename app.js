@@ -1961,23 +1961,78 @@ function buyAq() {
 
 function openExchange() {
     let html = `
-    <div class="shop-row"><span>50 Об. → 1 Ред.</span><button onclick="exch('common','rare',50)">Обменять</button></div>
-    <div class="shop-row"><span>1 Ред. → 50 Об.</span><button onclick="exch('rare','common',1,50)">Обменять</button></div>
-    <div class="shop-row"><span>50 Ред. → 1 Эпик.</span><button onclick="exch('rare','epic',50)">Обменять</button></div>
-    <div class="shop-row"><span>1 Эпик. → 50 Ред.</span><button onclick="exch('epic','rare',1,50)">Обменять</button></div>
-    <div class="shop-row"><span>50 Эпик. → 1 Лег.</span><button onclick="exch('epic','legend',50)">Обменять</button></div>
-    <div class="shop-row"><span>1 Лег. → 50 Эпик.</span><button onclick="exch('legend','epic',1,50)">Обменять</button></div>`;
+    <div class="shop-row">
+        <span>Обычные → Редкие (50 : 1)</span>
+        <input type="number" id="inp-c-r" oninput="fixMax(this, 'common', 50)" placeholder="Кол-во" style="width: 70px; margin: 0 5px;">
+        <button onclick="doExchange('common', 'rare', 50, document.getElementById('inp-c-r').value)">Обменять</button>
+    </div>
+    <div class="shop-row">
+        <span>Редкие → Обычные (1 : 50)</span>
+        <input type="number" id="inp-r-c" oninput="fixMax(this, 'rare', 1)" placeholder="Кол-во" style="width: 70px; margin: 0 5px;">
+        <button onclick="doExchange('rare', 'common', 1, document.getElementById('inp-r-c').value, 50)">Обменять</button>
+    </div>
+    <div class="shop-row">
+        <span>Редкие → Эпические (50 : 1)</span>
+        <input type="number" id="inp-r-e" oninput="fixMax(this, 'rare', 50)" placeholder="Кол-во" style="width: 70px; margin: 0 5px;">
+        <button onclick="doExchange('rare', 'epic', 50, document.getElementById('inp-r-e').value)">Обменять</button>
+    </div>
+    <div class="shop-row">
+        <span>Эпические → Редкие (1 : 50)</span>
+        <input type="number" id="inp-e-r" oninput="fixMax(this, 'epic', 1)" placeholder="Кол-во" style="width: 70px; margin: 0 5px;">
+        <button onclick="doExchange('epic', 'rare', 1, document.getElementById('inp-e-r').value, 50)">Обменять</button>
+    </div>
+    <div class="shop-row">
+        <span>Эпические → Легендарные (50 : 1)</span>
+        <input type="number" id="inp-e-l" oninput="fixMax(this, 'epic', 50)" placeholder="Кол-во" style="width: 70px; margin: 0 5px;">
+        <button onclick="doExchange('epic', 'legend', 50, document.getElementById('inp-e-l').value)">Обменять</button>
+    </div>
+    <div class="shop-row">
+        <span>Легендарные → Эпические (1 : 50)</span>
+        <input type="number" id="inp-l-e" oninput="fixMax(this, 'legend', 1)" placeholder="Кол-во" style="width: 70px; margin: 0 5px;">
+        <button onclick="doExchange('legend', 'epic', 1, document.getElementById('inp-l-e').value, 50)">Обменять</button>
+    </div>
+    `;
     showModal("Обмен", html, [{text: "Закрыть", action: closeModal}]);
 }
 
-function exch(from, to, cost, reward = 1) {
-    if (state.fish[from] >= cost) { 
-        state.fish[from] -= cost; 
-        state.fish[to] += reward; 
-        save(); updateUI(); openExchange(); 
-    } else { 
-        showPopup("!", `Не хватает! Нужно ${cost} (${from})`, ()=>{}); 
+// Умная функция, которая не дает ввести больше, чем есть
+function fixMax(inputElement, fromCurrency, cost) {
+    let val = parseInt(inputElement.value);
+    let have = parseInt(state.fish[fromCurrency]) || 0;
+
+    // Если введено больше, чем есть
+    if (val > have) {
+        // Считаем максимум, который можно обменять (кратно курсу)
+        let maxVal = Math.floor(have / cost) * cost;
+        inputElement.value = maxVal;
     }
+}
+
+// Сама функция обмена
+function doExchange(from, to, cost, inputVal, reward = 1) {
+    let amount = parseInt(inputVal);
+    
+    if (isNaN(amount) || amount <= 0) return;
+    if (amount < cost) return showPopup("!", `Минимум ${cost} шт.`, ()=>{});
+
+    let times = Math.floor(amount / cost);
+    let have = parseInt(state.fish[from]) || 0;
+
+    // Если вдруг из-за глюка amount больше have
+    if (times * cost > have) {
+        times = Math.floor(have / cost);
+    }
+
+    if (times <= 0) return showPopup("!", "Не хватает!", ()=>{});
+
+    state.fish[from] -= times * cost;
+    state.fish[to] += times * reward;
+    
+    save();
+    updateUI();
+    
+    // Обновляем окно обмена
+    openExchange(); 
 }
 
 function showModal(title, html, buttons) {
